@@ -649,6 +649,11 @@ require('lazy').setup({
             Lua = {},
           },
         },
+        -- Python
+        basedpyright = {},
+
+        -- Bash
+        bashls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -661,6 +666,12 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         -- You can add other tools here that you want Mason to install
+        -- Formatters & linters installed via Mason
+        'ruff', -- Python formatter + linter
+        'shfmt', -- Bash formatter
+        'shellcheck', -- Bash linter
+        'sqlfluff', -- SQL formatter + linter
+        'markdownlint', -- Markdown linter
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -709,6 +720,10 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        python = { 'ruff_format' },
+        sh = { 'shfmt' },
+        bash = { 'shfmt' },
+        sql = { 'sqlfluff' },
       },
     },
   },
@@ -733,12 +748,10 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function() require('luasnip.loaders.from_vscode').lazy_load() end,
+          },
         },
         opts = {},
       },
