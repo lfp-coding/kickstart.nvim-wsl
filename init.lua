@@ -768,6 +768,9 @@ require('lazy').setup({
         },
         opts = {},
       },
+      {
+        'fang2hou/blink-copilot',
+      },
     },
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
@@ -813,7 +816,15 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        default = { 'lsp', 'path', 'snippets', 'copilot' },
+        providers = {
+          copilot = {
+            name = 'copilot',
+            module = 'blink-copilot',
+            score_off = 100,
+            async = true,
+          },
+        },
       },
 
       snippets = { preset = 'luasnip' },
