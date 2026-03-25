@@ -519,7 +519,6 @@ require('lazy').setup({
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
-      cond = not is_vscode,
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -743,6 +742,7 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
+    cond = not is_vscode,
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
@@ -923,8 +923,11 @@ require('lazy').setup({
 
           -- check if parser exists and load it
           if not vim.treesitter.language.add(language) then return end
-          -- enables syntax highlighting and other treesitter features
-          vim.treesitter.start(buf, language)
+
+          if not is_vscode then
+            -- enables syntax highlighting and other treesitter features
+            vim.treesitter.start(buf, language)
+          end
 
           -- enables treesitter based folds
           -- for more info on folds see `:help folds`
