@@ -177,6 +177,22 @@ vim.o.confirm = true
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- vscode settings
+if is_vscode then vim.keymap.set('n', '<leader>,', function() vim.fn.VSCodeNotify 'workbench.action.showAllEditors' end, { silent = true }) end
+if is_vscode then vim.keymap.set('n', '<leader>e', function() vim.fn.VSCodeNotify 'workbench.action.toggleSidebarVisibility' end) end
+if is_vscode then
+  -- <leader>ca -> VS Code Code Action
+  vim.keymap.set('n', '<leader>ca', function() vim.fn.VSCodeNotify 'editor.action.codeAction' end, { silent = true })
+end
+if not is_vscode then
+  -- Normal mode: move current line
+  vim.keymap.set('n', 'J', ':m .+1<CR>==', { silent = true })
+  vim.keymap.set('n', 'K', ':m .-2<CR>==', { silent = true })
+
+  -- Visual mode: move selected lines
+  vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { silent = true })
+  vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { silent = true })
+end
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
 vim.diagnostic.config {
