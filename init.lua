@@ -759,6 +759,7 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
+    cond = not is_vscode,
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
