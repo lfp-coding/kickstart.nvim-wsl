@@ -139,7 +139,11 @@ vim.o.signcolumn = 'yes'
 vim.o.updatetime = 250
 
 -- Decrease mapped sequence wait time
-vim.o.timeoutlen = 300
+if is_vscode then
+  vim.o.timeoutlen = 10000
+else
+  vim.o.timeoutlen = 300
+end
 
 -- Configure how new splits should be opened
 vim.o.splitright = true
@@ -176,13 +180,13 @@ vim.o.confirm = true
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
 -- vscode settings
-if is_vscode then vim.keymap.set('n', '<leader>,', function() vim.fn.VSCodeNotify 'workbench.action.showAllEditors' end, { silent = true }) end
-if is_vscode then vim.keymap.set('n', '<leader>e', function() vim.fn.VSCodeNotify 'workbench.action.toggleSidebarVisibility' end) end
 if is_vscode then
-  -- <leader>ca -> VS Code Code Action
-  vim.keymap.set('n', '<leader>ca', function() vim.fn.VSCodeNotify 'editor.action.codeAction' end, { silent = true })
+  vim.keymap.set('n', 'grs', function() vim.fn.VSCodeNotify 'workbench.action.gotoSymbol' end, { silent = true })
+  vim.keymap.set('n', 'grd', function() vim.fn.VSCodeNotify 'editor.action.revealDefinition' end, { silent = true })
+  -- vim.keymap.set('n', 'gra', function() vim.fn.VSCodeNotify 'editor.action.codeAction' end, { silent = true })
+  -- vim.keymap.set('n', 'grn', function() vim.fn.VSCodeNotify 'editor.action.rename' end, { silent = true })
+  -- vim.keymap.set('n', 'grr', function() vim.fn.VSCodeNotify 'editor.action.goToReferences' end, { silent = true })
 end
 if not is_vscode then
   -- Normal mode: move current line
@@ -192,6 +196,9 @@ if not is_vscode then
   -- Visual mode: move selected lines
   vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { silent = true })
   vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { silent = true })
+
+  -- In insert mode: quick jj -> back to normal mode
+  vim.keymap.set('i', 'jj', '<Esc>', { noremap = true, silent = true })
 end
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
@@ -731,7 +738,7 @@ require('lazy').setup({
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
+        -- la guages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
@@ -966,16 +973,16 @@ require('lazy').setup({
     end,
   },
 
-  -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
-  -- init.lua. If you want these files, they are in the repository, so you can just download them and
-  -- place them in the correct locations.
+    -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
+    -- init.lua. If you want these files, they are in the repository, so you can just download them and
+    -- place them in the correct locations.
 
-  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-  --
-  --  Here are some example plugins that I've included in the Kickstart repository.
-  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
-  -- require 'kickstart.plugins.debug',
+    -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
+    --
+    --  Here are some example plugins that I've included in the Kickstart repository.
+    --  Uncomment any of the lines below to enable them (you will need to restart nvim).
+    --
+    -- require 'kickstart.plugins.debug',
   not is_vscode and require 'kickstart.plugins.indent_line' or nil,
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
