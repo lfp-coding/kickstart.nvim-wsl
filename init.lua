@@ -84,8 +84,8 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
--- Local VS Code variable for VS Code-specific config.
-local is_vscode = vim.g.vscode ~= nil
+-- Local VS Code helper module for VS Code-specific config.
+local vscode = require('custom.vscode')
 
 -- configure Treesitter to use gcc (for Windows setup)
 vim.env.CC = 'gcc'
@@ -139,12 +139,7 @@ vim.o.signcolumn = 'yes'
 vim.o.updatetime = 250
 
 -- Decrease mapped sequence wait time
-if is_vscode then
   vim.o.timeoutlen = 300
-  -- vim.o.timeoutlen = 10000
-else
-  vim.o.timeoutlen = 300
-end
 
 -- Configure how new splits should be opened
 vim.o.splitright = true
@@ -181,18 +176,9 @@ vim.o.confirm = true
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
--- vscode settings
-if is_vscode then
-  vim.keymap.set('n', 'grs', function() vim.fn.VSCodeNotify 'workbench.action.gotoSymbol' end, { silent = true })
-  vim.keymap.set('n', 'grd', function() vim.fn.VSCodeNotify 'editor.action.revealDefinition' end, { silent = true })
-  -- vim.keymap.set('n', 'gra', function() vim.fn.VSCodeNotify 'editor.action.codeAction' end, { silent = true })
-  -- vim.keymap.set('n', 'grn', function() vim.fn.VSCodeNotify 'editor.action.rename' end, { silent = true })
-  -- vim.keymap.set('n', 'grr', function() vim.fn.VSCodeNotify 'editor.action.goToReferences' end, { silent = true })
-
-  -- test vscode which-key
-  -- vim.keymap.set('n', 'g', function() vim.fn.VSCodeNotify 'whichkey.show' vim.fn.VSCodeNotify('whichkey.triggerKey', 'g') end, { silent = true })
-end
-if not is_vscode then
+-- vscode settings (moved to helper module)
+vscode.setup_keymaps()
+if not vscode.is_vscode then
   -- Normal mode: move current line
   vim.keymap.set('n', 'J', ':m .+1<CR>==', { silent = true })
   vim.keymap.set('n', 'K', ':m .-2<CR>==', { silent = true })
@@ -344,7 +330,7 @@ require('lazy').setup({
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     event = 'VimEnter',
     ---@module 'which-key'
     ---@type wk.Opts
@@ -374,7 +360,7 @@ require('lazy').setup({
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     -- By default, Telescope is included and acts as your picker for everything.
 
     -- If you would like to switch to a different picker (like snacks, or fzf-lua)
@@ -525,7 +511,7 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -542,7 +528,7 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', cond = not is_vscode, opts = {} },
+      { 'j-hui/fidget.nvim', cond = not vscode.is_vscode, opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
@@ -724,7 +710,7 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -770,7 +756,7 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
@@ -877,7 +863,7 @@ require('lazy').setup({
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
-    cond = not is_vscode,
+    cond = not vscode.is_vscode,
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
@@ -924,7 +910,7 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      if not is_vscode then
+      if not vscode.is_vscode then
         -- Simple and easy statusline.
         --  You could remove this setup call if you don't like it,
         --  and try some other statusline plugin
@@ -987,7 +973,7 @@ require('lazy').setup({
     --  Uncomment any of the lines below to enable them (you will need to restart nvim).
     --
     -- require 'kickstart.plugins.debug',
-  not is_vscode and require 'kickstart.plugins.indent_line' or nil,
+  not vscode.is_vscode and require 'kickstart.plugins.indent_line' or nil,
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
