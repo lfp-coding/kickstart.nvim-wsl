@@ -140,7 +140,8 @@ vim.o.updatetime = 250
 
 -- Decrease mapped sequence wait time
 if is_vscode then
-  vim.o.timeoutlen = 10000
+  vim.o.timeoutlen = 300
+  -- vim.o.timeoutlen = 10000
 else
   vim.o.timeoutlen = 300
 end
@@ -187,6 +188,9 @@ if is_vscode then
   -- vim.keymap.set('n', 'gra', function() vim.fn.VSCodeNotify 'editor.action.codeAction' end, { silent = true })
   -- vim.keymap.set('n', 'grn', function() vim.fn.VSCodeNotify 'editor.action.rename' end, { silent = true })
   -- vim.keymap.set('n', 'grr', function() vim.fn.VSCodeNotify 'editor.action.goToReferences' end, { silent = true })
+
+  -- test vscode which-key
+  -- vim.keymap.set('n', 'g', function() vim.fn.VSCodeNotify 'whichkey.show' vim.fn.VSCodeNotify('whichkey.triggerKey', 'g') end, { silent = true })
 end
 if not is_vscode then
   -- Normal mode: move current line
