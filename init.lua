@@ -139,7 +139,7 @@ vim.o.signcolumn = 'yes'
 vim.o.updatetime = 250
 
 -- Decrease mapped sequence wait time
-  vim.o.timeoutlen = 300
+vim.o.timeoutlen = 300
 
 -- Configure how new splits should be opened
 vim.o.splitright = true
@@ -178,6 +178,7 @@ vim.o.confirm = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- vscode settings (moved to helper module)
 vscode.setup_keymaps()
+vscode.setup_options()
 if not vscode.is_vscode then
   -- Normal mode: move current line
   vim.keymap.set('n', 'J', ':m .+1<CR>==', { silent = true })

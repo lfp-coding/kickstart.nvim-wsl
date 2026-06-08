@@ -30,4 +30,10 @@ function M.setup_keymaps()
   -- vim.keymap.set('n', 'grr', function() M.notify('editor.action.goToReferences') end, { silent = true })
 end
 
+function M.setup_options()
+  if not M.is_vscode then return end
+
+  vim.o.timeoutlen = 10000
+end
+
 return M
