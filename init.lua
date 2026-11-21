@@ -187,6 +187,9 @@ if not vscode.is_vscode then
   -- In insert mode: quick jj -> back to normal mode
   -- NOTE: In VS Code use the `vscode-neovim.compositeKeys` setting instead
   vim.keymap.set('i', 'jj', '<Esc>', { silent = true, desc = 'Exit insert mode' })
+
+  -- Alt+F: fix spelling and grammar of the selection or paragraph, see lua/custom/textfix.lua
+  require('custom.textfix').setup()
 end
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
