@@ -1,10 +1,13 @@
+---@module 'lazy'
+---@type LazySpec
 return {
-  {
-    -- copilot integration
+  { -- GitHub Copilot backend; suggestions are shown in the blink.cmp menu via blink-copilot
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
     event = 'InsertEnter',
-    opts = { enabled = false },
-    panel = { enabled = false },
+    opts = {
+      suggestion = { enabled = false },
+      panel = { enabled = false },
+    },
   },
 }

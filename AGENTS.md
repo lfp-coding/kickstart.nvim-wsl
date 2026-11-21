@@ -20,8 +20,12 @@ lua/
       lint.lua
       neo-tree.lua
   custom/
+    vscode.lua             # VS Code (vscode-neovim) detection, keymaps and options
     plugins/
       init.lua             # Your own plugins go here (returns a LazySpec table)
+      copilot.lua          # copilot.lua backend (suggestions via blink-copilot)
+      projects.lua         # persistence.nvim session management (<leader>q…)
+.gitattributes             # Normalize line endings to LF
 .stylua.toml               # StyLua formatter config
 .github/workflows/
   stylua.yml               # CI: checks formatting on PRs
@@ -227,6 +231,22 @@ vim.api.nvim_create_autocmd('TextYankPost', {
    ---@type LazySpec
    return { ... }
    ```
+
+---
+
+## VS Code (vscode-neovim)
+
+The same config is used by the [vscode-neovim](https://github.com/vscode-neovim/vscode-neovim) extension.
+Detection and VS Code specific keymaps/options live in `lua/custom/vscode.lua`.
+
+- In VS Code, lazy.nvim only loads plugins whose spec contains `vscode = true`
+  (whitelist via `defaults.cond` in the `require('lazy').setup` call). Everything else
+  stays installed but is not loaded.
+- New plugins therefore need **no** `cond` for VS Code — they are skipped there automatically.
+- Only set `vscode = true` for textobject, navigation and editing plugins (e.g. `mini.nvim`).
+  UI, LSP, completion, formatting and colorscheme plugins are handled by VS Code itself.
+- Code that must not run in VS Code inside a whitelisted plugin is guarded with
+  `if not vscode.is_vscode then ... end` (see `mini.statusline`).
 
 ---
 

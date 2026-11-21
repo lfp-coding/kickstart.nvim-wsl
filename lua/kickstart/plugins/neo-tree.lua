@@ -4,7 +4,6 @@
 ---@module 'lazy'
 ---@type LazySpec
 return {
-  cond = not require('custom.vscode').is_vscode,
   'nvim-neo-tree/neo-tree.nvim',
   version = '*',
   dependencies = {

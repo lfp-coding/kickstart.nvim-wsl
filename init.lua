@@ -85,10 +85,10 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Local VS Code helper module for VS Code-specific config.
-local vscode = require('custom.vscode')
+local vscode = require 'custom.vscode'
 
 -- configure Treesitter to use gcc (for Windows setup)
-vim.env.CC = 'gcc'
+if vim.fn.has 'win32' == 1 then vim.env.CC = 'gcc' end
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -176,20 +176,17 @@ vim.o.confirm = true
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
--- vscode settings (moved to helper module)
+-- VS Code specific keymaps and options, see lua/custom/vscode.lua
 vscode.setup_keymaps()
 vscode.setup_options()
 if not vscode.is_vscode then
-  -- Normal mode: move current line
-  vim.keymap.set('n', 'J', ':m .+1<CR>==', { silent = true })
-  vim.keymap.set('n', 'K', ':m .-2<CR>==', { silent = true })
-
   -- Visual mode: move selected lines
-  vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { silent = true })
-  vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { silent = true })
+  vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { silent = true, desc = 'Move selection down' })
+  vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { silent = true, desc = 'Move selection up' })
 
   -- In insert mode: quick jj -> back to normal mode
-  vim.keymap.set('i', 'jj', '<Esc>', { noremap = true, silent = true })
+  -- NOTE: In VS Code use the `vscode-neovim.compositeKeys` setting instead
+  vim.keymap.set('i', 'jj', '<Esc>', { silent = true, desc = 'Exit insert mode' })
 end
 -- Diagnostic Config & Keymaps
 -- See :help vim.diagnostic.Opts
@@ -207,7 +204,7 @@ vim.diagnostic.config {
   jump = { float = true },
 }
 
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = '[D]iagnostic [L]ist' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -240,8 +237,8 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 -- [[ DE-keyboard Keymaps ]]
 -- remap = true: all keymaps building on these (e.g. [d, ]h) continue to work automatically
-vim.keymap.set({ 'n', 'v', 'o' }, 'ü', '[', { remap = true })
-vim.keymap.set({ 'n', 'v', 'o' }, '+', ']', { remap = true })
+vim.keymap.set({ 'n', 'v', 'o' }, 'ü', '[', { remap = true, desc = '[ prefix (DE keyboard)' })
+vim.keymap.set({ 'n', 'v', 'o' }, '+', ']', { remap = true, desc = '] prefix (DE keyboard)' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -331,7 +328,6 @@ require('lazy').setup({
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
-    cond = not vscode.is_vscode,
     event = 'VimEnter',
     ---@module 'which-key'
     ---@type wk.Opts
@@ -347,6 +343,7 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { 'gr', group = 'LSP Actions', mode = { 'n' } },
+        { '<leader>d', group = '[D]iagnostics' },
         { '<leader>q', group = '[Q]uit / Sessions' },
       },
     },
@@ -361,7 +358,6 @@ require('lazy').setup({
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
-    cond = not vscode.is_vscode,
     -- By default, Telescope is included and acts as your picker for everything.
 
     -- If you would like to switch to a different picker (like snacks, or fzf-lua)
@@ -512,7 +508,6 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
-    cond = not vscode.is_vscode,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -529,11 +524,10 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', cond = not vscode.is_vscode, opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
-      cond = not is_vscode,
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -711,7 +705,6 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    cond = not vscode.is_vscode,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -729,7 +722,7 @@ require('lazy').setup({
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
-        -- la guages here or re-enable it for the disabled ones.
+        -- languages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
@@ -757,7 +750,6 @@ require('lazy').setup({
 
   { -- Autocompletion
     'saghen/blink.cmp',
-    cond = not vscode.is_vscode,
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
@@ -864,7 +856,6 @@ require('lazy').setup({
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
-    cond = not vscode.is_vscode,
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
@@ -884,7 +875,6 @@ require('lazy').setup({
   -- Highlight todo, notes, etc in comments
   {
     'folke/todo-comments.nvim',
-    cond = not is_vscode,
     event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
     ---@module 'todo-comments'
@@ -895,6 +885,7 @@ require('lazy').setup({
 
   { -- Collection of various small independent plugins/modules
     'nvim-mini/mini.nvim',
+    vscode = true, -- textobjects and surround also work in VS Code
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -941,6 +932,8 @@ require('lazy').setup({
       local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'sql' }
       require('nvim-treesitter').install(parsers)
       vim.api.nvim_create_autocmd('FileType', {
+        desc = 'Start treesitter highlighting and indentation if a parser is available',
+        group = vim.api.nvim_create_augroup('kickstart-treesitter', { clear = true }),
         callback = function(args)
           local buf, filetype = args.buf, args.match
 
@@ -958,23 +951,23 @@ require('lazy').setup({
           -- vim.wo.foldmethod = 'expr'
 
           -- enables treesitter based indentation
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end,
       })
     end,
   },
 
-    -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
-    -- init.lua. If you want these files, they are in the repository, so you can just download them and
-    -- place them in the correct locations.
+  -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
+  -- init.lua. If you want these files, they are in the repository, so you can just download them and
+  -- place them in the correct locations.
 
-    -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
-    --
-    --  Here are some example plugins that I've included in the Kickstart repository.
-    --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-    --
-    -- require 'kickstart.plugins.debug',
-  not vscode.is_vscode and require 'kickstart.plugins.indent_line' or nil,
+  -- NOTE: Next step on your Neovim journey: Add/Configure additional plugins for Kickstart
+  --
+  --  Here are some example plugins that I've included in the Kickstart repository.
+  --  Uncomment any of the lines below to enable them (you will need to restart nvim).
+  --
+  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
@@ -991,6 +984,10 @@ require('lazy').setup({
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
 }, { ---@diagnostic disable-line: missing-fields
+  defaults = {
+    -- In VS Code (vscode-neovim) only load plugins explicitly marked with `vscode = true`
+    cond = function(plugin) return not vscode.is_vscode or plugin.vscode == true end,
+  },
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
