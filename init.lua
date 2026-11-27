@@ -188,6 +188,17 @@ if not vscode.is_vscode then
   -- NOTE: In VS Code use the `vscode-neovim.compositeKeys` setting instead
   vim.keymap.set('i', 'jj', '<Esc>', { silent = true, desc = 'Exit insert mode' })
 
+  -- Ctrl+V pastes from the system clipboard in insert and cmdline mode (incl. Telescope prompt).
+  -- Windows Terminal passes Ctrl+V through (unbound there), so Ctrl+V still starts visual block in normal mode.
+  -- NOTE: Insert a character literally with <C-q> instead of <C-v>.
+  local function paste_clipboard()
+    local lines = vim.fn.getreg('+', 1, true)
+    -- A linewise register ends with a newline that the list form drops.
+    if vim.fn.getregtype '+' == 'V' then table.insert(lines, '') end
+    vim.paste(lines, -1)
+  end
+  vim.keymap.set({ 'i', 'c' }, '<C-v>', paste_clipboard, { desc = 'Paste from system clipboard' })
+
   -- Alt+F: fix spelling and grammar of the selection or paragraph, see lua/custom/textfix.lua
   require('custom.textfix').setup()
 end
@@ -419,11 +430,12 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            -- <C-v> pastes from the clipboard in the prompt (global insert keymap), so vertical split moves to <C-s>
+            i = { ['<C-v>'] = false, ['<C-s>'] = 'select_vertical' },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = { require('telescope.themes').get_dropdown() },
